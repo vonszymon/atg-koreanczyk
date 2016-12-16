@@ -1,6 +1,14 @@
 from koreanczyk.utils.helpers import *
 
 
+def test_forward__from_outside():
+    assert forward(-1, 1) == 1
+    assert forward(-1, 2) == 2
+    assert forward(-1, 3) == 3
+    assert forward(-1, 4) == 4
+    assert forward(-1, 5) == 5
+
+
 def test_forward_rectangle_path():
     for i in range(20):
         assert forward(i, 1) == i + 1 if i + 1 < 20 else 100
@@ -110,6 +118,7 @@ def test_backward():
 
 
 if __name__ == '__main__':
+    test_forward__from_outside()
     test_forward_rectangle_path()
     test_turning_left()
     test_forward_left_down_diagonal()

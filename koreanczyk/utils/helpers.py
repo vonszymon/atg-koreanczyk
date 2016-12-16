@@ -42,6 +42,43 @@
 #                      60
 #########################
 
+same_places = [[0, 20, 40, 60],
+               [1, 21, 41, 61],
+               [2, 22, 42, 62],
+               [3, 23, 43, 63],
+               [4, 24, 44, 64],
+               [5, 25, 45, 65],
+               [6, 46],
+               [7, 47],
+               [8, 48],
+               [9, 49],
+               [10, 50],
+               [11],
+               [12],
+               [13],
+               [14],
+               [15, 31],
+               [16, 32],
+               [17, 33],
+               [18, 34],
+               [19, 35],
+               [26, 66],
+               [27, 67],
+               [28, 53, 68],
+               [29],
+               [30],
+               [51],
+               [52],
+               [54, 69],
+               [55, 70]]
+
+
+def same_place(a, b):
+    for same_place_list in same_places:
+        if a in same_place_list and b in same_place_list:
+            return True
+    return False
+
 
 def get_moves_list(current):
     if 0 <= current < 20:
@@ -55,6 +92,10 @@ def get_moves_list(current):
 
 
 def forward(current, i):
+    if i == -1:  # todo test for forward(current, -1) -> backward
+        return backward(current)
+    if current == -1:
+        return forward(0, i)
     _list = get_moves_list(current)
     try:
         place = _list[_list.index(current) + i]
