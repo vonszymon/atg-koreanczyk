@@ -96,6 +96,8 @@ def forward(current, i):
         return backward(current)
     if current == -1:
         return forward(0, i)
+    if current == 100:
+        return 100
     _list = get_moves_list(current)
     try:
         place = _list[_list.index(current) + i]
@@ -112,6 +114,8 @@ def backward(current):
         return 9
     if current == 68:
         return 27
+    if current == 100:
+        return 100
     _list = get_moves_list(current)
     current_idx = _list.index(current)
     if current_idx == 0:

@@ -21,3 +21,6 @@ class Move(object):
 
     def of(self):
         return self.of
+
+    def __str__(self):
+        return "Move(%s, %s, %d)" % (str(self.counter_group_id), self.command, self.of)

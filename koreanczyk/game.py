@@ -1,3 +1,4 @@
+import copy
 from random import seed, randint
 from sys import argv
 
@@ -44,7 +45,9 @@ def games(player1, player2):
     players = create_players(player1, player2)
     for i in range(GAMES_TO_PLAY):
         message("GAME START", str(i + 1))
-        scores += game(players)
+        result = game(players)
+        scores[0] += result[0]
+        scores[1] += result[1]
 
     message("SERIES RESULT", "{}({})  {}({})".format(player1, scores[0], player2, scores[1]))
 
@@ -54,7 +57,7 @@ def games(player1, player2):
 def _check_no_counters_on_board_and_do_move(results, actual_player, player_structs):
     # there is no possibility to get more than one 'do' move
     only_do_move = len(results) == 1 and results[0] == -1
-    no_counters_on_board = set(player_structs[actual_player].state.values()) == {-1}
+    no_counters_on_board = set(player_structs[actual_player].state.values()) in [{-1}, {-1, 100}]
     return only_do_move and no_counters_on_board
 
 
@@ -126,12 +129,12 @@ def check_win(actual_player, player_structs):
 
 
 def _apply_moves(moves, actual_player, player_structs):
-    result = {}
+    result = copy.deepcopy(player_structs)
     for move in moves:
         if move.command == "forward":
-            result[move.counter_group_id] = forward(player_structs[actual_player].state[move.counter_group_id], move.of)
+            result[move.counter_group_id] = forward(result[actual_player].state[move.counter_group_id], move.of)
         else:  # "turn_left"
-            result[move.counter_group_id] = turn_left(player_structs[actual_player].state[move.counter_group_id],
+            result[move.counter_group_id] = turn_left(result[actual_player].state[move.counter_group_id],
                                                       move.of)
     return result
 
@@ -144,16 +147,22 @@ def validate_moves(moves_from_player, results, actual_player, player_structs):
     validated_groups = all(g in valid_groups for g in groups)
 
     # validating moves
-    player_moves = map(lambda x: x.of(), moves)
+    player_moves = map(lambda x: x.of, moves)
     validated_moves = sorted(results) == sorted(player_moves)
 
     if validated_groups and validated_moves:
         # validating 'merge' commands
         counters_new_position = _apply_moves(moves, actual_player, player_structs)
         merges = filter(lambda x: isinstance(x, Merge), moves_from_player)
-        for merge in merges:
-            if not same_place(counters_new_position[merge.group1], counters_new_position[merge.group2]):
-                return False
+
+        for merge in merges:  # todo tests
+            for i in range(len(merge.groups) - 1):
+                counter1 = merge.groups[i]
+                counter2 = merge.groups[i+1]
+                place1 = counters_new_position[counter1]
+                place2 = counters_new_position[counter2]
+                if not same_place(place1, place2):
+                    return False
 
     return True
 
