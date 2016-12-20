@@ -2,12 +2,13 @@ from random import seed, randint
 from sys import argv
 
 from koreanczyk.utils.commands import Merge, Move
+from koreanczyk.utils.counters import CounterGroup
 from koreanczyk.utils.state import CountersState
 from koreanczyk.utils.helpers import forward, turn_left, same_place
 
 GAMES_TO_PLAY = 11
-output = {"do": -1, "gae": 2, "geol": 3, "yut": 4, "mo": 5}
-again = {"yut": True, "mo": True, "do": False, "gae": False, "geol": False}
+OUTPUT = {"do": -1, "gae": 2, "geol": 3, "yut": 4, "mo": 5}
+AGAIN = {"yut": True, "mo": True, "do": False, "gae": False, "geol": False}
 number_of_x_to_output = {0: "yut", 1: "geol", 2: "gae", 3: "do", 4: "mo"}
 
 
@@ -79,10 +80,10 @@ def game(players):
 
         are_valid_moves = validate_moves(moves_from_player, results, actual_player, player_structs)
         if not are_valid_moves:
-            winner(other_player(actual_player), players)
+            return winner(other_player(actual_player), players)
         extra_throws = update_board(moves_from_player, actual_player, player_structs)
         if check_win(actual_player, player_structs):
-            winner(actual_player, players)
+            return winner(actual_player, players)
         if not extra_throws:
             actual_player = other_player(actual_player)
 
@@ -102,7 +103,7 @@ def throws(i, players):
     results = [result]
     players[0].throw_result(i, result)
     players[1].throw_result(i, result)
-    throwing_again = again[result]
+    throwing_again = AGAIN[result]
     while throwing_again:
         throw = players[0].paticks(i) + players[1].paticks(i)
         result = get_output(throw)
@@ -111,9 +112,9 @@ def throws(i, players):
         players[0].throw_result(i, result)
         players[1].throw_result(i, result)
 
-        throwing_again = again[result]
+        throwing_again = AGAIN[result]
 
-    return map(lambda x: output[x], results)
+    return map(lambda x: OUTPUT[x], results)
 
 
 def other_player(actual_player):
@@ -158,29 +159,37 @@ def validate_moves(moves_from_player, results, actual_player, player_structs):
 
 
 def _knock_counter_group(other_counter_group, player, player_structs):
-    #todo:
-    # * set to -1
-    # * split groups
-    pass
+    #   * set to -1
+    #   * split groups
+    player_structs[player].remove_group(other_counter_group)
+    for counter in other_counter_group.counter_set:
+        player_structs[player].add_group(CounterGroup(counter), -1)
 
 
 def update_board(moves, actual_player, player_structs):
     only_moves = filter(lambda x: isinstance(x, Move), moves)
     for move in only_moves:
         if move.command == "forward":
-            player_structs[actual_player].state = forward(player_structs[actual_player].state, move.of)
+            player_structs[actual_player].state[move.counter_group_id] = forward(
+                player_structs[actual_player].state[move.counter_group_id], move.of)
         else:  # turn_left
-            player_structs[actual_player].state = turn_left(player_structs[actual_player].state, move.of)
+            player_structs[actual_player].state[move.counter_group_id] = turn_left(
+                player_structs[actual_player].state[move.counter_group_id], move.of)
+
     only_merges = filter(lambda x: isinstance(x, Merge), moves)
     for merge in only_merges:
-        place1 = player_structs[actual_player].remove_group(merge.group1)
-        place2 = player_structs[actual_player].remove_group(merge.group2)
-        new_group_name = "".join(sorted([merge.group1, merge.group2]))
-        player_structs[actual_player].add_group(new_group_name, max(place1, place2))
+        places = []
+        counter_ids = []
+        for group in merge.groups:
+            counter_ids.extend(group.counter_set)
+            places.append(player_structs[actual_player].remove_group(group))
+
+        new_counter_group = CounterGroup(*counter_ids)
+        player_structs[actual_player].add_group(new_counter_group, max(places))
 
     extra_round_for_knocked = False
-    for counter_group, place in player_structs[actual_player].state.iteritems():
-        for other_counter_group, other_place in player_structs[other_player(actual_player)].iteritems():
+    for counter_group, place in list(player_structs[actual_player].state.iteritems()):
+        for other_counter_group, other_place in list(player_structs[other_player(actual_player)].state.iteritems()):
             if same_place(place, other_place):
                 _knock_counter_group(other_counter_group, other_player(actual_player), player_structs)
                 extra_round_for_knocked = True

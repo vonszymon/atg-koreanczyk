@@ -1,7 +1,9 @@
 class Merge(object):
-    def __init__(self, group1, group2):
-        self.group1 = group1
-        self.group2 = group2
+    def __init__(self, *groups):
+        self.groups = groups
+
+    def __str__(self):
+        return str(self.groups)
 
 
 class Move(object):
@@ -11,14 +13,11 @@ class Move(object):
         self.command = command
         self.of = of
 
-    @property
     def counter_group_id(self):
         return self.counter_group_id
 
-    @property
     def command(self):
         return self.command
 
-    @property
     def of(self):
         return self.of
