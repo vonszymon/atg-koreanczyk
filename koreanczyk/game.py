@@ -132,9 +132,9 @@ def _apply_moves(moves, actual_player, player_structs):
     result = copy.deepcopy(player_structs)
     for move in moves:
         if move.command == "forward":
-            result[move.counter_group_id] = forward(result[actual_player].state[move.counter_group_id], move.of)
+            result[actual_player].state[move.counter_group_id] = forward(result[actual_player].state[move.counter_group_id], move.of)
         else:  # "turn_left"
-            result[move.counter_group_id] = turn_left(result[actual_player].state[move.counter_group_id],
+            result[actual_player].state[move.counter_group_id] = turn_left(result[actual_player].state[move.counter_group_id],
                                                       move.of)
     return result
 
