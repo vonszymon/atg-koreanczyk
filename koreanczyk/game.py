@@ -66,8 +66,8 @@ def game(players):
     actual_player = randint(0, 1)
 
     while True:
-        players[0].board(actual_player, player_structs)
-        players[1].board(actual_player, player_structs)
+        players[0].board(actual_player, copy.deepcopy(player_structs))
+        players[1].board(actual_player, copy.deepcopy(player_structs))
 
         results = throws(actual_player, players)
         if _check_no_counters_on_board_and_do_move(results, actual_player, player_structs):
