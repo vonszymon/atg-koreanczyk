@@ -108,12 +108,12 @@ def forward(current, i):
 
 def backward(current):
     # if crossroads backward -> choose longer/default path
-    if current == 25:
-        return 4
-    if current == 50:
-        return 9
-    if current == 68:
-        return 27
+    if current == 26:
+        return 5
+    if current == 51:
+        return 10
+    if current == 69:
+        return 28
     if current == 100:
         return 100
     _list = get_moves_list(current)

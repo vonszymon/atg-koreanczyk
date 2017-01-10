@@ -74,8 +74,8 @@ def test_forward_left_up_diagonal():
 
 
 def test_backward():
-    special = [25, 50, 68]
-    special_results = [4, 9, 27]
+    special = [26, 51, 69]
+    special_results = [5, 10, 28]
     for i, s in enumerate(special):
         assert backward(s) == special_results[i]
 
@@ -95,20 +95,20 @@ def test_backward():
     assert current == 31
 
     ###
-    current = 68
+    current = 69
     current = backward(current)
-    assert current == 27
+    assert current == 28
     current = backward(current)
-    assert current == 26
-    current = forward(current, 1)
     assert current == 27
     current = forward(current, 1)
     assert current == 28
+    current = forward(current, 1)
+    assert current == 29
 
     ###
     current = 51
     current = backward(current)
-    assert current == 50
+    assert current == 10
     current = backward(current)
     assert current == 9
     current = forward(current, 1)
