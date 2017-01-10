@@ -159,8 +159,8 @@ def validate_moves(moves_from_player, results, actual_player, player_structs):
             for i in range(len(merge.groups) - 1):
                 counter1 = merge.groups[i]
                 counter2 = merge.groups[i+1]
-                place1 = counters_new_position[counter1]
-                place2 = counters_new_position[counter2]
+                place1 = counters_new_position[actual_player].state[counter1]
+                place2 = counters_new_position[actual_player].state[counter2]
                 if not same_place(place1, place2):
                     return False
 
